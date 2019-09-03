@@ -1,0 +1,78 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1.0"
+    # For deployment history
+    kubernetes.io/change-cause: "ver 1.0"
+  labels:
+    run: flaskapp
+  name: flaskapp-deployment
+  namespace: default
+
+spec:
+  # Time to wait after seeing pod becoming healthy
+  # and proceeding to rolling update 
+  minReadySeconds: 10
+
+  # Timeout for deployment state
+  progressDeadlineSeconds: 60
+
+  # Available rollback history
+  revisionHistoryLimit: 12
+
+  replicas: 3
+  selector:
+    matchLabels:
+      run: flaskapp
+
+  strategy:
+    rollingUpdate:
+      #maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        run: flaskapp
+    spec:
+      containers:
+      - image: <BUILD_IMAGE_FROM_/web>
+        name: flaskapp
+        imagePullPolicy: Always
+        # Exposed ports
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        # Env variables
+        env:
+        - name: FLASK_DEBUG
+          value: "1"
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+...
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaskapp
+  labels:
+    name: flaskapp
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    run: flaskapp
+
+...
