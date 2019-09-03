@@ -1,0 +1,74 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "redis1.0"
+    # For deployment history
+    kubernetes.io/change-cause: "ver redis1.0"
+  labels:
+    run: redis
+  name: redis-deployment
+  namespace: default
+
+spec:
+  # Time to wait after seeing pod becoming healthy
+  # and proceeding to rolling update 
+  minReadySeconds: 10
+
+  # Timeout for deployment state
+  progressDeadlineSeconds: 60
+
+  # Available rollback history
+  revisionHistoryLimit: 12
+
+  replicas: 1
+  selector:
+    matchLabels:
+      run: redis
+
+  strategy:
+    rollingUpdate:
+      #maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        run: redis
+    spec:
+      containers:
+      - image: redis:alpine
+        name: redis
+        imagePullPolicy: Always
+        # Exposed ports
+        ports:
+        - containerPort: 6379
+          name: redis-port
+          protocol: TCP
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+...
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    name: redis
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    run: redis
+
+...
