@@ -1,0 +1,74 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1.0"
+    # For deployment history
+    kubernetes.io/change-cause: "ver 1.0"
+  labels:
+    run: nginx
+  name: nginx-deployment
+  namespace: default
+
+spec:
+  # Time to wait after seeing pod becoming healthy
+  # and proceeding to rolling update 
+  minReadySeconds: 10
+
+  # Timeout for deployment state
+  progressDeadlineSeconds: 60
+
+  # Available rollback history
+  revisionHistoryLimit: 12
+
+  replicas: 3
+  selector:
+    matchLabels:
+      run: nginx
+
+  strategy:
+    rollingUpdate:
+      #maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: <BUILD_IMAGE_FROM_/nginx>
+        name: nginx
+        imagePullPolicy: Always
+        # Exposed ports
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+...
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    name: nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: nginx
+
+...
