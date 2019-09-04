@@ -1,0 +1,70 @@
+---
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: kuard-pod
+
+spec:
+  containers:
+  - image: gcr.io/kuar-demo/kuard-amd64:1
+    name: kuard-container
+
+    # Volumes
+    volumeMounts:
+    - mountPath: /data
+      name: kuard-data
+
+    # Resource allocation
+    resources:
+      # Min
+      requests:
+        cpu: "500m"
+        memory: "128Mi"
+      # Max
+      limits:
+        cpu: "1000m"
+        memory: "256Mi"
+
+    # Life cycle tasks
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/sh", "-c", "echo Hello from the postStart handler"]
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "echo ByeBye from the postStop handler"]
+
+    # Liveness probe
+    livenessProbe:
+      httpGet:
+        path: /healthy
+        port: 8080
+      initialDelaySeconds: 5
+      timeoutSeconds: 1
+      periodSeconds: 10
+      failureThreshold: 3
+    
+    # Readiness probe
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 30
+      timeoutSeconds: 1
+      periodSeconds: 10
+      failureThreshold: 3  
+
+    # Exposed ports
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+
+  volumes:
+  - name: kuard-data
+    hostPath:
+      path: <path_to_host_dir>
+
+...
