@@ -1,0 +1,38 @@
+---
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: kuard-config
+
+spec:
+  containers:
+  - image: gcr.io/kuar-demo/kuard-amd64:1
+    name: test-container
+    imagePullPolicy: Always
+
+    command:
+    - /kuard
+    - $(PARAM2)
+
+    # Injecting configMap as ENV variable inside the container
+    env:
+    - name: PARAM2
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: param2
+    
+    # Getting configMap as a file
+    volumeMounts:
+      - name: config-volume
+        mountPath: /config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: my-config
+
+  restartPolicy: Never  
+
+...

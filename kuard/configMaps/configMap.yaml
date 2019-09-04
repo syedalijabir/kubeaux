@@ -1,0 +1,21 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: my-config
+  namespace: default
+
+data:
+  param1: "72"
+  param2: samplestring
+  config.ini: |
+    [default]
+    ID = 14
+
+    [environment]
+    env = staging
+    system = k8s
+
+...
