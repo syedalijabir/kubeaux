@@ -41,7 +41,7 @@ spec:
         run: flaskapp
     spec:
       containers:
-      - image: <BUILD_IMAGE_FROM_/web>
+      - image: syedalijabir/mse-web
         name: flaskapp
         imagePullPolicy: Always
         # Exposed ports

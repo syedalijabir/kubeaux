@@ -41,7 +41,7 @@ spec:
         run: nginx
     spec:
       containers:
-      - image: <BUILD_IMAGE_FROM_/nginx>
+      - image: syedalijabir/mse-nginx
         name: nginx
         imagePullPolicy: Always
         # Exposed ports
