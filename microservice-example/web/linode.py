@@ -50,7 +50,7 @@ def hello_world():
     return 'Hello Linode!  This page has been viewed %s time(s).' % count
 
 @app.route('/v1')
-def hello_world():
+def v1():
     if cache.exists('visitor_count'):
         cache.incr('visitor_count')
         count = (cache.get('visitor_count')).decode('utf-8')
@@ -61,7 +61,9 @@ def hello_world():
         cache.set('visitor_count', count)
         cache.incr('visitor_count')
         count = (cache.get('visitor_count')).decode('utf-8')
-    return 'Request from route {}. This page has been viewed {} time(s).'.format('/v1',count)
+    ret_v1 = 'Request from route {}. \
+              This page has been viewed {} time(s).'.format('/v1', count)
+    return ret_v1
 
 @app.route('/resetcounter')
 def resetcounter():
